@@ -1,0 +1,64 @@
+{% extends './base.html' %}
+
+{{ super () }}
+{% block main %}
+<main class="container">
+  <div class="row">
+    <section class="col-12 col-md-4 pt-5">
+      <div class="card mx-auto" style="width: 18rem;">
+        <img src="{{ image_file }}" class="card-img-top" alt="Ваше фото">
+        <div class="card-body">
+          <p class="card-text">Логин: {{ current_user.username }}</p>
+          <p class="card-text">Email: {{ current_user.email }}</p>
+          <p class="card-text">Имя: {{ current_user.profile.firstname }}</p>
+          <p class="card-text">Фамилия: {{ current_user.profile.lastname }}</p>
+        </div>
+      </div>
+    </section>
+    <section class="col-12 col-md-8 pt-5">
+      <p class="d-grid gap-2 col-10 col-md-6 mx-auto">
+        <button class="btn btn-dark btn-block" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+          Редактировать профиль
+        </button>
+      </p>
+      <div class="collapse" id="collapseExample">
+        <form action="{{ url_for('account') }}" method="POST" enctype="multipart/form-data">
+          <div class="mb-2">
+              {{ form.picture.label(class='form-label') }}
+              {{ form.picture(class='form-control') }}
+              {% for error in form.picture.errors %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% for field in form if field.name not in ['csrf_token', 'submit', 'picture'] %}
+            {{ form.hidden_tag() }}
+            <div class="mb-2">
+              {{ field.label(class='form-label') }}
+              {{ field(class='form-control') }}
+              {% for error in field.errors %}
+                <div class="form-text text-danger">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          {{ form.submit(class='btn btn-dark mt-3 mb-3') }}
+        </form>
+      </div>
+      <hr>
+      <h3 class="mb-4">Мои статьи</h3>
+      {% if not current_user.articles: %}
+        <p>У вас нет добавленных статей</p>
+      {% else %}
+        {% for article in current_user.articles %}
+          <div class="card mb-4">
+            <h5 class="card-header" style="background-color: #F8F8FF;">{{ article.title }}</h5>
+            <div class="card-body">
+              <a href="{{ url_for('article', article_id=article.id) }}" class="btn btn-dark">Перейти</a>
+              <a href="{{ url_for('update_article', article_id=article.id) }}" class="btn btn-dark ms-2">Редактировать</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </section>
+  </div>  
+</main>
+{% endblock main %}
